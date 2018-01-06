@@ -21,19 +21,50 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'HelloWorld',
   data() {
     return {
       msg: 'Welcome to Your Vue.js App',
+      error: {},
+      sensex: null,
+      parsed: null,
     };
+  },
+  mounted() {
+    this.loadData();
+  },
+  methods: {
+    loadData() {
+      const t = this;
+      axios
+        .get('https://finance.google.com/finance?q=SENSEX&output=json')
+        .then((response) => {
+          t.sensex = response.data;
+          const parsedJson = t.sensex
+            .replace(/\r/g, '')
+            .replace(/" /g, '')
+            .replace(/\n/g, '')
+            .replace(/\\"/g, '')
+            .replace(/\/\//g, '')
+            .replace(/\/"/g, '');
+          console.log('parsedJson', parsedJson);
+          t.parsed = parsedJson;
+        })
+        .catch((error) => {
+          t.error = error.data;
+        });
+    },
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
+h1,
+h2 {
   font-weight: normal;
 }
 ul {
