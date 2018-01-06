@@ -1,57 +1,58 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-      <br>
-      <li><a href="http://vuejs-templates.github.io/webpack/" target="_blank">Docs for This Template</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
+  <div class="container">
+    <div class="field">
+      <label class="label">Search</label>
+      <div class="control">
+        <input class="input" type="text" placeholder="Search for Option" v-model="option">
+      </div>
+    </div>
+    <div class="field">
+      <div class="control">
+        <button class="button is-primary" @click.prevent="loadData" v-if="option">
+          Search for {{option}}
+        </button>
+      </div>
+    </div>
+    <h1> {{ finance_data.symbol }} </h1>
+    <finance-table :finance="finance_data"></finance-table>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import FinanceTable from '../components/_partials/Table';
 
 export default {
-  name: 'HelloWorld',
+  name: 'Home',
+  components: {
+    FinanceTable,
+  },
   data() {
     return {
-      msg: 'Welcome to Your Vue.js App',
       error: {},
-      sensex: null,
-      parsed: null,
+      option: 'SENSEX',
+      finance_data: null,
     };
   },
-  mounted() {
+  created() {
     this.loadData();
   },
   methods: {
     loadData() {
       const t = this;
       axios
-        .get('https://finance.google.com/finance?q=SENSEX&output=json')
+        .get(`https://finance.google.com/finance?q=${t.option}&output=json`)
         .then((response) => {
-          t.sensex = response.data;
-          const parsedJson = t.sensex
-            .replace(/\r/g, '')
-            .replace(/" /g, '')
-            .replace(/\n/g, '')
-            .replace(/\\"/g, '')
-            .replace(/\/\//g, '')
-            .replace(/\/"/g, '');
-          console.log('parsedJson', parsedJson);
-          t.parsed = parsedJson;
+          t.finance_data = JSON.parse(JSON.stringify(response.data));
+          // const parsedJson = t.sensex
+          //   .replace(/\r/g, '')
+          //   .replace(/" /g, '')
+          //   .replace(/\n/g, '')
+          //   .replace(/\\"/g, '')
+          //   .replace(/\/\//g, '')
+          //   .replace(/\/"/g, '');
+          // console.log('parsedJson', parsedJson);
+          // t.parsed = parsedJson;
         })
         .catch((error) => {
           t.error = error.data;
@@ -60,22 +61,3 @@ export default {
   },
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1,
-h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
